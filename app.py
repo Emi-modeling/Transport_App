@@ -142,7 +142,7 @@ beta_adaption = st.slider(
     max_value=100,
     value=50
 )
-beta = 0 + (0.8 / 100) * beta_adaption
+beta = 0 + (0.5 / 100) * beta_adaption
 
 # --- Eingabefeld für alpha ---
 rad_km_2026 = st.number_input(
@@ -151,7 +151,7 @@ rad_km_2026 = st.number_input(
     max_value=500.0,
     value=90.4
 )
-alpha = 0.9 - (rad_km_2026 / 1000)
+alpha = 1 - (rad_km_2026 / 1000)
 
 # --- ABM-Parameter ---
 n = 500
@@ -160,7 +160,7 @@ md = 10
 mo = 10
 epsilon = 0.01
 rev = 0.1
-mu_v = 0.8
+mu_v = 0.5
 gamma = 0.5
 lam = 0.1  # lambda ist reserviert, daher lam
 mu_B = 0.01
@@ -174,8 +174,8 @@ num_infected = round(0.01 * n)
 x0[np.random.permutation(n)[:num_infected]] = 1
 
 # Convictions and normative expectations
-z = 0.8 * np.ones(n)
-y0 = 0.8 * np.ones(n)
+z = 0.6029 * np.ones(n)
+y0 = 0.4412 * np.ones(n)
 
 # --- Button to run simulation ---
 if st.button("Simulation starten"):
