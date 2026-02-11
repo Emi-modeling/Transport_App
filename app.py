@@ -106,26 +106,28 @@ def ABM(n, md, mo, beta, gamma, lam, alpha, epsilon,
             + beta * gamma * (W1 @ z)
             + beta * (1 - gamma) * (W2 @ x[:, t-1])
         )
+        
+# Schwellenwert berechnen
+xtemp = (1 - lam) * z + lam * y[:, t-1]
 
-        # Compute threshold (IMPORTANT: uses y(t-1), as in MATLAB)
-        xtemp = (1 - lam) * z + lam * y[:, t-1]
+# Wahrscheinlichkeit, Verhalten zu übernehmen
+# je näher xtemp an 1, desto höher die Wahrscheinlichkeit
+p_adopt = np.clip((xtemp - alpha) / (1 - alpha), 0, 1)
 
-        # Bounded rationality mechanism
-        flag_random = np.random.rand(n) < epsilon
-        random_choices = np.round(np.random.rand(n))
+# Entscheidung mit Zufall
+decision = (np.random.rand(n) < p_adopt).astype(float)
 
-        xtemp = (
-            flag_random * random_choices
-            + (1 - flag_random) * (xtemp >= alpha)
-        )
+# Bounded rationality: epsilon fraction zufällig
+flag_eps = np.random.rand(n) < epsilon
+random_choices = np.round(np.random.rand(n))
+xtemp_final = flag_eps * random_choices + (1 - flag_eps) * decision
 
-        # Revision decision
-        flag_revision = np.random.rand(n) < rev
+# Revision: nur rev Anteil aktualisiert
+flag_rev = np.random.rand(n) < rev
+x[:, t] = flag_rev * xtemp_final + (1 - flag_rev) * x[:, t-1]
 
-        x[:, t] = (
-            flag_revision * xtemp
-            + (1 - flag_revision) * x[:, t-1]
-        )
+# Sicherstellen, dass Werte 0–1 bleiben
+x[:, t] = np.clip(x[:, t], 0, 1)
 
     return x, y, z
 
